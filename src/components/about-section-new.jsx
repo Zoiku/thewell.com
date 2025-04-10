@@ -1,15 +1,182 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Section } from "@/components/ui/section";
 import { animate } from "motion";
 
+// Import gallery images
+import img1 from "@/assets/gallery/img1.jpg";
+import img2 from "@/assets/gallery/img2.jpg";
+import img3 from "@/assets/gallery/img3.jpg";
+import img4 from "@/assets/gallery/img4.jpg";
+import img5 from "@/assets/gallery/img5.jpg";
+import img6 from "@/assets/gallery/img6.jpg";
+import img7 from "@/assets/gallery/img7.jpg";
+
+// Function to get gallery images
+const fetchGalleryImages = () => {
+  // Using real images with metadata
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
+          id: 1,
+          title: "Community Outreach",
+          description: "Team members engaging with the local community",
+          size: "large",
+          shape: "square",
+          image: img1,
+          position: "center",
+        },
+        {
+          id: 2,
+          title: "Team Building",
+          description: "Our team during a retreat session",
+          size: "medium",
+          shape: "portrait",
+          image: img2,
+          position: "top",
+        },
+        {
+          id: 3,
+          title: "Skills Workshop",
+          description: "Teaching valuable skills to community members",
+          size: "medium",
+          shape: "landscape",
+          image: img3,
+          position: "center",
+        },
+        {
+          id: 4,
+          title: "Prayer Circle",
+          description: "Team members in prayer and reflection",
+          size: "small",
+          shape: "circle",
+          image: img4,
+          position: "center",
+        },
+        {
+          id: 5,
+          title: "Youth Program",
+          description: "Engaging with children in our youth programs",
+          size: "large",
+          shape: "landscape",
+          image: img5,
+          position: "bottom",
+        },
+        {
+          id: 6,
+          title: "Leadership Meeting",
+          description: "Our leadership team planning future initiatives",
+          size: "small",
+          shape: "square",
+          image: img6,
+          position: "center",
+        },
+        {
+          id: 7,
+          title: "Volunteer Day",
+          description: "Volunteers working together on community projects",
+          size: "medium",
+          shape: "portrait",
+          image: img7,
+          position: "center",
+        },
+      ]);
+    }, 300); // Reduced delay since we're using real images
+  });
+};
+
+// CSS keyframes for animations
+const animationStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes spin-slow {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes floatIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes gentleAppear {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .animate-spin {
+    animation: spin 1.5s linear infinite;
+  }
+  .animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+  .animate-float-in {
+    animation: floatIn 1s ease-out forwards;
+  }
+  .animate-gentle-appear {
+    animation: gentleAppear 0.7s ease-out forwards;
+  }
+  .gallery-item:nth-child(1) { animation-delay: 0.1s; }
+  .gallery-item:nth-child(2) { animation-delay: 0.2s; }
+  .gallery-item:nth-child(3) { animation-delay: 0.3s; }
+  .gallery-item:nth-child(4) { animation-delay: 0.4s; }
+  .gallery-item:nth-child(5) { animation-delay: 0.5s; }
+  .gallery-item:nth-child(6) { animation-delay: 0.6s; }
+  .gallery-item:nth-child(7) { animation-delay: 0.7s; }
+  .gallery-masonry {
+    column-count: 1;
+    column-gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .gallery-masonry {
+      column-count: 2;
+    }
+  }
+  @media (min-width: 1024px) {
+    .gallery-masonry {
+      column-count: 3;
+    }
+  }
+  .gallery-item {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+  }
+`;
+
 const AboutSection = () => {
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch gallery images when component mounts
+  useEffect(() => {
+    const loadGalleryImages = async () => {
+      try {
+        const images = await fetchGalleryImages();
+        setGalleryImages(images);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching gallery images:", error);
+        setLoading(false);
+      }
+    };
+
+    loadGalleryImages();
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const elements = document.querySelectorAll(".about-animate");
-            elements.forEach((element) => {
+            elements.forEach((element, index) => {
               animate(
                 element,
                 {
@@ -19,6 +186,7 @@ const AboutSection = () => {
                 {
                   duration: 0.8,
                   easing: "ease-out",
+                  delay: 0.2 + index * 0.1, // Stagger the animations slightly
                 }
               );
             });
@@ -37,6 +205,9 @@ const AboutSection = () => {
 
   return (
     <Section id="about" className="py-24 md:py-32 relative overflow-hidden">
+      {/* Add the animation styles */}
+      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
+
       {/* Refined decorative elements */}
       <div
         className="absolute top-0 right-0 w-1/3 h-full bg-[#FFDDE6]/20"
@@ -99,19 +270,90 @@ const AboutSection = () => {
           </div>
         </div>
 
+        {/* Founders Section */}
+        <div className="mt-24 md:mt-32 about-animate opacity-0 relative">
+          {/* Decorative elements */}
+          <div className="absolute -top-16 right-0 w-64 h-64 bg-[#F7CFE2]/10 rounded-full blur-3xl -z-10" />
+
+          <div className="text-center mb-20 relative">
+            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C38383]/20 to-transparent -z-10" />
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#5B0A42] tracking-tight leading-tight inline-block relative px-8 bg-[#FFDDE6]/10 backdrop-blur-sm">
+              Our <span className="text-[#C38383] italic">Founders</span>
+            </h2>
+          </div>
+
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+              {/* Founder */}
+              <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
+                <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-32 h-32 rounded-full bg-[#F7CFE2]/30 mb-6 overflow-hidden">
+                    {/* Placeholder for founder image */}
+                    <div className="w-full h-full flex items-center justify-center bg-[#F7CFE2]/50">
+                      <span className="text-4xl font-serif font-bold text-[#5B0A42]/30">
+                        MZ
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-2">
+                    Maygrace Zoiku
+                  </h3>
+                  <div className="w-12 h-[1px] bg-[#C38383] mx-auto mb-4" />
+                  <span className="text-sm uppercase tracking-widest text-[#C38383] font-medium mb-4">
+                    Founder
+                  </span>
+                  <p className="text-[#2B001B]/80 leading-relaxed">
+                    Driven by a passion for empowering women and children,
+                    Maygrace founded The Well Foundation to create sustainable
+                    change through faith-based initiatives.
+                  </p>
+                </div>
+              </div>
+
+              {/* Co-founder */}
+              <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
+                <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-32 h-32 rounded-full bg-[#F7CFE2]/30 mb-6 overflow-hidden">
+                    {/* Placeholder for co-founder image */}
+                    <div className="w-full h-full flex items-center justify-center bg-[#F7CFE2]/50">
+                      <span className="text-4xl font-serif font-bold text-[#5B0A42]/30">
+                        AF
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-2">
+                    Angel Selasi Fiti
+                  </h3>
+                  <div className="w-12 h-[1px] bg-[#C38383] mx-auto mb-4" />
+                  <span className="text-sm uppercase tracking-widest text-[#C38383] font-medium mb-4">
+                    Co-founder
+                  </span>
+                  <p className="text-[#2B001B]/80 leading-relaxed">
+                    With a heart for service and community development, Angel
+                    co-founded The Well Foundation to bring transformative
+                    change to women and children in need.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Our Goals Section */}
         <div className="mt-24 md:mt-32 about-animate opacity-0 relative">
           {/* Decorative elements */}
           <div className="absolute -top-16 left-0 w-64 h-64 bg-[#F7CFE2]/10 rounded-full blur-3xl -z-10" />
           <div className="absolute bottom-16 right-0 w-48 h-48 bg-[#C38383]/5 rounded-full blur-2xl -z-10" />
-          
+
           <div className="text-center mb-20 relative">
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C38383]/20 to-transparent -z-10" />
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#5B0A42] tracking-tight leading-tight inline-block relative px-8 bg-[#FFDDE6]/10 backdrop-blur-sm">
               Our <span className="text-[#C38383] italic">Goals</span>
             </h2>
           </div>
-          
+
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
               {/* Goal 1 - Feature card */}
@@ -121,71 +363,99 @@ const AboutSection = () => {
                   <div className="md:col-span-4 bg-[#F7CFE2]/20 p-8 flex flex-col justify-between relative">
                     <div>
                       <div className="w-12 h-12 flex items-center justify-center bg-white/40 mb-6">
-                        <span className="font-serif font-bold text-2xl text-[#5B0A42]">01</span>
+                        <span className="font-serif font-bold text-2xl text-[#5B0A42]">
+                          01
+                        </span>
                       </div>
-                      <h3 className="text-2xl font-serif font-semibold text-[#5B0A42]">Empower Women & Children</h3>
+                      <h3 className="text-2xl font-serif font-semibold text-[#5B0A42]">
+                        Empower Women & Children
+                      </h3>
                     </div>
                     <div className="w-16 h-[1px] bg-[#C38383] mt-auto" />
                   </div>
                   <div className="md:col-span-8 p-8 flex items-center">
                     <p className="text-[#2B001B]/80 leading-relaxed">
-                      Provide vocational training, education, and mentorship programs to equip women and youth with skills for self-sufficiency.
+                      Provide vocational training, education, and mentorship
+                      programs to equip women and youth with skills for
+                      self-sufficiency.
                     </p>
                   </div>
                 </div>
               </div>
-              
+
               {/* Goal 2 */}
               <div className="md:col-span-2 bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="h-full flex flex-col">
                   <div className="w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30 mb-6">
-                    <span className="font-serif font-bold text-[#5B0A42]">02</span>
+                    <span className="font-serif font-bold text-[#5B0A42]">
+                      02
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Humanitarian Support</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Humanitarian Support
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    Distribute essential supplies such as food, clothing, books, and other necessities to underserved communities.
+                    Distribute essential supplies such as food, clothing, books,
+                    and other necessities to underserved communities.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Goal 3 */}
               <div className="md:col-span-2 bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="h-full flex flex-col">
                   <div className="w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30 mb-6">
-                    <span className="font-serif font-bold text-[#5B0A42]">03</span>
+                    <span className="font-serif font-bold text-[#5B0A42]">
+                      03
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Spiritual Nourishment</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Spiritual Nourishment
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    Share the love of Christ through outreach programs, Bible studies, and community evangelism.
+                    Share the love of Christ through outreach programs, Bible
+                    studies, and community evangelism.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Goal 4-5 - Feature card */}
               <div className="md:col-span-3 bg-white/40 backdrop-blur-sm relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="grid grid-cols-1 md:grid-cols-2 h-full divide-x divide-[#C38383]/10">
                   <div className="p-8 flex flex-col h-full">
                     <div className="w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30 mb-6">
-                      <span className="font-serif font-bold text-[#5B0A42]">04</span>
+                      <span className="font-serif font-bold text-[#5B0A42]">
+                        04
+                      </span>
                     </div>
-                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Sustainable Community Impact</h3>
+                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                      Sustainable Community Impact
+                    </h3>
                     <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                      Foster long-term development by partnering with local leaders to address poverty, illiteracy, and gender inequality.
+                      Foster long-term development by partnering with local
+                      leaders to address poverty, illiteracy, and gender
+                      inequality.
                     </p>
                     <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                   </div>
                   <div className="p-8 flex flex-col h-full">
                     <div className="w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30 mb-6">
-                      <span className="font-serif font-bold text-[#5B0A42]">05</span>
+                      <span className="font-serif font-bold text-[#5B0A42]">
+                        05
+                      </span>
                     </div>
-                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Advocacy & Awareness</h3>
+                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                      Advocacy & Awareness
+                    </h3>
                     <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                      Champion the rights and dignity of women and children through advocacy campaigns and partnerships with like-minded organizations.
+                      Champion the rights and dignity of women and children
+                      through advocacy campaigns and partnerships with
+                      like-minded organizations.
                     </p>
                     <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                   </div>
@@ -194,131 +464,277 @@ const AboutSection = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Core Values Section */}
         <div className="mt-24 md:mt-32 about-animate opacity-0 relative">
           {/* Decorative elements */}
           <div className="absolute -top-16 right-0 w-64 h-64 bg-[#F7CFE2]/10 rounded-full blur-3xl -z-10" />
           <div className="absolute bottom-16 left-0 w-48 h-48 bg-[#C38383]/5 rounded-full blur-2xl -z-10" />
-          
+
           <div className="text-center mb-20 relative">
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C38383]/20 to-transparent -z-10" />
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#5B0A42] tracking-tight leading-tight inline-block relative px-8 bg-[#FFDDE6]/10 backdrop-blur-sm">
               Our Core <span className="text-[#C38383] italic">Values</span>
             </h2>
           </div>
-          
+
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Faith-Centered Service */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">01</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    01
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Faith-Centered Service</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Faith-Centered Service
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We are rooted in the love of Christ, guiding all our actions with prayer, biblical principles, and a heart for serving others.
+                    We are rooted in the love of Christ, guiding all our actions
+                    with prayer, biblical principles, and a heart for serving
+                    others.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Compassion */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">02</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    02
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Compassion</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Compassion
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We treat every individual with dignity, empathy, and kindness, recognizing the inherent worth of all women and children.
+                    We treat every individual with dignity, empathy, and
+                    kindness, recognizing the inherent worth of all women and
+                    children.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Empowerment */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">03</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    03
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Empowerment</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Empowerment
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We believe in equipping women and youth with skills, education, and resources to foster independence and self-sufficiency.
+                    We believe in equipping women and youth with skills,
+                    education, and resources to foster independence and
+                    self-sufficiency.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Integrity */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">04</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    04
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Integrity</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Integrity
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We operate with honesty, transparency, and accountability in all our programs, partnerships, and stewardship of resources.
+                    We operate with honesty, transparency, and accountability in
+                    all our programs, partnerships, and stewardship of
+                    resources.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Community & Collaboration */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">05</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    05
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Community & Collaboration</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Community & Collaboration
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We work alongside local communities, churches, and organizations to create sustainable, collective impact.
+                    We work alongside local communities, churches, and
+                    organizations to create sustainable, collective impact.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
-              
+
               {/* Justice & Advocacy */}
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">06</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    06
+                  </span>
                 </div>
                 <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Justice & Advocacy</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                    Justice & Advocacy
+                  </h3>
                   <p className="text-[#2B001B]/80 leading-relaxed flex-grow">
-                    We stand against inequality, advocating for the rights and well-being of marginalized women and children.
+                    We stand against inequality, advocating for the rights and
+                    well-being of marginalized women and children.
                   </p>
                   <div className="w-16 h-[1px] bg-[#C38383] mt-6" />
                 </div>
               </div>
             </div>
-            
+
             {/* Hope & Transformation - Special feature card */}
             <div className="mt-16 max-w-4xl mx-auto">
               <div className="bg-white/40 backdrop-blur-sm p-8 relative group hover:shadow-sm transition-all duration-300">
                 <div className="absolute top-0 left-0 w-full h-full border border-[#C38383]/10 scale-95 group-hover:scale-100 transition-transform duration-300" />
                 <div className="absolute -top-4 -left-4 w-10 h-10 flex items-center justify-center bg-[#F7CFE2]/30">
-                  <span className="font-serif font-bold text-[#5B0A42]">07</span>
+                  <span className="font-serif font-bold text-[#5B0A42]">
+                    07
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
                   <div className="md:col-span-4 relative">
-                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">Hope & Transformation</h3>
+                    <h3 className="text-2xl font-serif font-semibold text-[#5B0A42] mb-4">
+                      Hope & Transformation
+                    </h3>
                     <div className="w-16 h-[1px] bg-[#C38383] mb-6" />
                   </div>
                   <div className="md:col-span-8 relative">
                     <p className="text-[#2B001B]/80 leading-relaxed">
-                      We believe in the power of the Gospel and holistic support to bring lasting change in lives and communities.
+                      We believe in the power of the Gospel and holistic support
+                      to bring lasting change in lives and communities.
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Gallery Section */}
+        <div className="mt-24 md:mt-32 about-animate opacity-0 relative">
+          {/* Decorative elements */}
+          <div className="absolute -top-16 left-0 w-64 h-64 bg-[#F7CFE2]/10 rounded-full blur-3xl -z-10" />
+          <div className="absolute bottom-16 right-0 w-48 h-48 bg-[#C38383]/5 rounded-full blur-2xl -z-10" />
+          <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-[#F7CFE2]/5 rounded-full blur-xl -z-10" />
+          <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-[#C38383]/5 rounded-full blur-xl -z-10" />
+
+          <div className="text-center mb-16 relative">
+            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C38383]/20 to-transparent -z-10" />
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#5B0A42] tracking-tight leading-tight inline-block relative px-8 bg-[#FFDDE6]/10 backdrop-blur-sm">
+              Our <span className="text-[#C38383] italic">Gallery</span>
+            </h2>
+            <div className="mt-4 max-w-xl mx-auto px-4">
+              <p className="text-[#2B001B]/70 text-sm md:text-base">
+                Glimpses of joy, connection, and purpose from our community
+                journey
+              </p>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="relative">
+                  <div className="w-16 h-16 border-t-2 border-b-2 border-[#5B0A42] rounded-full animate-spin"></div>
+                  <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-r-2 border-[#C38383] rounded-full animate-spin-slow"></div>
+                </div>
+                <span className="ml-4 text-[#5B0A42] font-serif">
+                  Loading gallery...
+                </span>
+              </div>
+            ) : (
+              <div className="gallery-masonry pb-8">
+                {galleryImages.map((image, index) => {
+                  // Determine which animation to use based on index
+                  const animationClass =
+                    index % 3 === 0
+                      ? "animate-gentle-appear"
+                      : index % 3 === 1
+                      ? "animate-fade-in"
+                      : "animate-float-in";
+
+                  // Determine aspect ratio based on image properties
+                  let aspectRatio = "";
+                  if (image.shape === "portrait") {
+                    aspectRatio = "aspect-[3/4]";
+                  } else if (image.shape === "landscape") {
+                    aspectRatio = "aspect-[4/3]";
+                  } else if (image.shape === "square") {
+                    aspectRatio = "aspect-square";
+                  } else if (image.shape === "circle") {
+                    aspectRatio = "aspect-square";
+                  }
+
+                  return (
+                    <div
+                      key={image.id}
+                      className={`gallery-item ${animationClass} relative mb-6`}
+                    >
+                      <div
+                        className={`group relative overflow-hidden rounded-3xl shadow-sm hover:shadow-md transition-all duration-500 ${aspectRatio}`}
+                      >
+                        {/* Soft glow effect */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#F7CFE2]/30 via-[#C38383]/20 to-[#F7CFE2]/30 rounded-[28px] blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-700 -z-10"></div>
+
+                        {/* Actual image */}
+                        <div className="w-full h-full overflow-hidden rounded-3xl">
+                          <img
+                            src={image.image}
+                            alt={image.title}
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+
+                        {/* Content overlay - always visible */}
+                        <div className="absolute inset-0 flex flex-col justify-end p-5 rounded-3xl">
+                          <div className="transform transition-all duration-500 ease-out">
+                            <div className="bg-white/80 backdrop-blur-sm p-3 rounded-2xl shadow-sm">
+                              <h3 className="font-serif font-medium text-[#5B0A42] text-lg">
+                                {image.title}
+                              </h3>
+                              <p className="text-[#2B001B]/70 text-sm mt-1">
+                                {image.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Caption */}
+            <div className="mt-4 text-center">
+              <div className="inline-block px-6 py-3 bg-[#F7CFE2]/10 backdrop-blur-sm rounded-full">
+                <p className="text-[#5B0A42]/70 text-sm">
+                  ✨ Moments that define our journey together ✨
+                </p>
               </div>
             </div>
           </div>
@@ -336,11 +752,14 @@ const AboutSection = () => {
               </span>
             </div>
             <p className="text-2xl md:text-3xl font-serif italic text-[#2B001B] leading-relaxed text-center max-w-3xl mx-auto">
-              A generous person will prosper; whoever refreshes others will be refreshed.
+              A generous person will prosper; whoever refreshes others will be
+              refreshed.
             </p>
             <div className="mt-8 text-center">
               <div className="w-12 h-[1px] bg-[#C38383] mx-auto mb-4" />
-              <cite className="text-sm uppercase tracking-widest text-[#5B0A42] font-medium">Proverbs 11:25</cite>
+              <cite className="text-sm uppercase tracking-widest text-[#5B0A42] font-medium">
+                Proverbs 11:25
+              </cite>
             </div>
           </blockquote>
         </div>
